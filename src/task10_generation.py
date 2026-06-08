@@ -8,13 +8,15 @@ Hướng dẫn:
     4. Yêu cầu LLM trả lời có citation
     5. Nếu không đủ evidence → "I cannot verify this information"
 
-Generation backend:
-    - Nếu có OPENAI_API_KEY trong .env → gọi OpenAI thật theo đúng SYSTEM_PROMPT.
-    - Nếu không (giải pháp local/free mặc định) → `_generate_local_answer` tự
-      tổng hợp câu trả lời trực tiếp từ các chunk đã retrieve, MỖI đoạn đều
-      kèm "[Nguồn: ...]" — vẫn tuân thủ yêu cầu cốt lõi của task (mọi câu trả
-      lời đều có citation, và nói rõ khi không có evidence) mà không cần gọi
-      API trả phí.
+Generation backend (theo thứ tự ưu tiên — xem `_call_llm`):
+    1. OpenAI (`gpt-4o-mini`) nếu có OPENAI_API_KEY trong .env.
+    2. Ollama cục bộ (model Qwen, xem OLLAMA_MODEL) nếu server Ollama đang
+       chạy ở OLLAMA_BASE_URL — đúng kiến trúc "Generation triển khai cục bộ
+       bằng Ollama (model Qwen)" của nhóm, miễn phí & không cần API key.
+    3. `_generate_local_answer` (giải pháp local/free cuối cùng): tự tổng hợp
+       câu trả lời trực tiếp từ các chunk đã retrieve, MỖI đoạn đều kèm
+       "[Nguồn: ...]" — vẫn tuân thủ yêu cầu cốt lõi của task (mọi câu trả lời
+       đều có citation, và nói rõ khi không có evidence) mà không cần gọi LLM.
 """
 
 import os
@@ -153,7 +155,7 @@ def _generate_local_answer(query: str, reordered: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def _generate_openai_answer(query: str, context: str) -> str | None:
+def _generate_openai_answer(system_prompt: str, user_message: str) -> str | None:
     """Gọi OpenAI thật nếu có OPENAI_API_KEY; trả None nếu lỗi/không có key."""
     api_key = os.getenv("OPENAI_API_KEY", "")
     if not api_key:
@@ -163,12 +165,10 @@ def _generate_openai_answer(query: str, context: str) -> str | None:
         from openai import OpenAI
 
         client = OpenAI(api_key=api_key)
-        user_message = f"Context:\n{context}\n\n---\n\nQuestion: {query}"
-
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
             temperature=TEMPERATURE,
@@ -176,8 +176,83 @@ def _generate_openai_answer(query: str, context: str) -> str | None:
         )
         return response.choices[0].message.content
     except Exception as e:
-        print(f"  [!] OpenAI API lỗi ({e}) — fallback sang local citation generator")
+        print(f"  [!] OpenAI API lỗi ({e})")
         return None
+
+
+# =============================================================================
+# OLLAMA — Local generation backend (model Qwen)
+# =============================================================================
+#
+# Theo kiến trúc của nhóm: "Generation triển khai cục bộ bằng Ollama (model
+# Qwen)" — đây là backend miễn phí, chạy hoàn toàn local, không cần API key.
+# Cài đặt: https://ollama.com → `ollama pull qwen2.5:3b` (hoặc model Qwen khác)
+# rồi chạy `ollama serve` (mặc định lắng nghe ở http://localhost:11434).
+
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+_OLLAMA_PING_TIMEOUT = 1.5   # giây — chỉ "ping" xem server có chạy không, không chờ generation
+_OLLAMA_GENERATE_TIMEOUT = 180
+
+
+def _ollama_available() -> bool:
+    """Kiểm tra Ollama server cục bộ có đang chạy ở OLLAMA_BASE_URL không."""
+    try:
+        import requests
+
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=_OLLAMA_PING_TIMEOUT)
+        return response.ok
+    except Exception:
+        return False
+
+
+def _generate_ollama_answer(system_prompt: str, user_message: str) -> str | None:
+    """Gọi Ollama (model Qwen, chạy local) qua REST API; trả None nếu lỗi."""
+    try:
+        import requests
+
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/chat",
+            json={
+                "model": OLLAMA_MODEL,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ],
+                "stream": False,
+                "options": {"temperature": TEMPERATURE, "top_p": TOP_P},
+            },
+            timeout=_OLLAMA_GENERATE_TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json().get("message", {}).get("content")
+    except Exception as e:
+        print(f"  [!] Ollama lỗi ({e})")
+        return None
+
+
+def _call_llm(system_prompt: str, user_message: str) -> tuple[str | None, str]:
+    """
+    Gọi LLM theo thứ tự ưu tiên — dùng chung cho generation (Task 10) lẫn
+    HyDE (Task 9, bonus): OpenAI (nếu có OPENAI_API_KEY) → Ollama/Qwen cục bộ
+    (nếu server đang chạy) → None (caller tự fallback cục bộ phù hợp với mình,
+    vd: `_generate_local_answer` ở đây hay `_local_hypothetical_document` ở
+    task9_retrieval_pipeline).
+
+    Returns:
+        (text, backend) — backend ∈ {"openai", "ollama", "local"}.
+        `text` là None khi cả OpenAI lẫn Ollama đều không khả dụng/đều lỗi.
+    """
+    answer = _generate_openai_answer(system_prompt, user_message)
+    if answer:
+        return answer, "openai"
+
+    if _ollama_available():
+        answer = _generate_ollama_answer(system_prompt, user_message)
+        if answer:
+            return answer, "ollama"
+
+    return None, "local"
 
 
 def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
@@ -185,12 +260,12 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
     End-to-end RAG generation có citation.
 
     Pipeline:
-        1. Retrieve relevant chunks
+        1. Retrieve relevant chunks (hybrid + HyDE, xem task9_retrieval_pipeline)
         2. Reorder để tránh lost in the middle
         3. Format context với source labels
         4. Build prompt (system + context + query)
-        5. Call LLM (OpenAI nếu có key, ngược lại fallback local)
-        6. Return answer + sources
+        5. Call LLM: OpenAI → Ollama/Qwen cục bộ → tổng hợp local (xem `_call_llm`)
+        6. Return answer + sources + backend đã dùng
 
     Args:
         query: Câu hỏi của user
@@ -199,14 +274,16 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
         {
             'answer': str,           # Câu trả lời có citation
             'sources': list[dict],   # Các chunks đã dùng
-            'retrieval_source': str  # 'hybrid' hoặc 'pageindex'
+            'retrieval_source': str, # 'hybrid' hoặc 'pageindex'
+            'llm': str               # Backend sinh câu trả lời: openai|ollama|local
         }
     """
     chunks = retrieve(query, top_k=top_k)
     reordered = reorder_for_llm(chunks)
     context = format_context(reordered)
+    user_message = f"Context:\n{context}\n\n---\n\nQuestion: {query}"
 
-    answer = _generate_openai_answer(query, context)
+    answer, llm = _call_llm(SYSTEM_PROMPT, user_message)
     if answer is None:
         answer = _generate_local_answer(query, reordered)
 
@@ -214,6 +291,7 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
         "answer": answer,
         "sources": chunks,
         "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none",
+        "llm": llm,
     }
 
 

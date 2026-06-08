@@ -1,0 +1,27 @@
+# Render Blueprint — cho phép deploy chatbot chỉ bằng cách "New + Blueprint"
+# và trỏ vào repo này (Render tự đọc file này, build Dockerfile ở gốc repo).
+# Xem hướng dẫn đầy đủ trong group_project/README.md, mục "Triển khai Online".
+services:
+  - type: web
+    name: druglaw-rag-chatbot
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: HOST
+        value: "0.0.0.0"
+      # Render tự đặt PORT — không cần khai báo, web_app.py đọc từ env.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OLLAMA_BASE_URL
+        sync: false
+      - key: OLLAMA_MODEL
+        sync: false
+      - key: JINA_API_KEY
+        sync: false
+      - key: PAGEINDEX_API_KEY
+        sync: false
+      - key: WEAVIATE_URL
+        sync: false
+      - key: WEAVIATE_API_KEY
+        sync: false

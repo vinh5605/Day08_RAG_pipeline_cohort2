@@ -1,0 +1,13 @@
+# Giữ Docker image gọn nhẹ — không cần lịch sử git, cache test, file môi
+# trường cá nhân hay bytecode đã biên dịch (sẽ được tạo lại khi chạy).
+.git
+.gitignore
+.pytest_cache
+.claude
+__pycache__
+**/__pycache__
+*.pyc
+.env
+.venv
+venv/
+tests/

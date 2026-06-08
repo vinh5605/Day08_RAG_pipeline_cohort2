@@ -27,8 +27,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.task10_generation import generate_with_citation, OLLAMA_MODEL, _ollama_available
 from src.ingestion import ingest_uploaded_file, ingest_url, refresh_index
 
-HOST = "127.0.0.1"
-PORT = 8000
+# Cloud platforms (Render / Hugging Face Spaces Docker / ...) chỉ định cổng
+# qua biến môi trường PORT và yêu cầu bind 0.0.0.0 (không phải 127.0.0.1) để
+# truy cập được từ bên ngoài container. Mặc định vẫn là localhost:8000 cho
+# máy cá nhân — không cần đặt biến môi trường khi chạy local.
+HOST = os.getenv("HOST", "127.0.0.1")
+PORT = int(os.getenv("PORT", "8000"))
 
 INDEX_HTML = """<!doctype html>
 <html lang="vi">

@@ -50,3 +50,51 @@ Dự án được thiết kế theo cấu trúc mô-đun hoá cao với 10 task 
    python group_project/evaluation/eval_pipeline.py
    ```
    Kết quả đánh giá sẽ được ghi vào file `group_project/evaluation/results.md`.
+
+## Triển khai Online (Deploy) — Bonus
+
+Repo đã có sẵn `Dockerfile` (ở thư mục gốc) đóng gói toàn bộ chatbot
+(`group_project/web_app.py`) thành 1 container — chạy được trên bất kỳ nền
+tảng hỗ trợ Docker nào. `web_app.py` đọc `HOST`/`PORT` từ biến môi trường
+(mặc định `127.0.0.1:8000` khi chạy local), nên không cần sửa code khi deploy.
+
+### Cách 1 — Hugging Face Spaces (SDK: Docker)
+
+1. Tạo Space mới tại huggingface.co/new-space → chọn **Docker** làm SDK.
+2. Đẩy code lên Space (Spaces là 1 git repo):
+   ```bash
+   git remote add space https://huggingface.co/spaces/<username>/<space-name>
+   git push space main
+   ```
+3. Vào tab **Settings → Variables and secrets** của Space, thêm các biến cần
+   thiết (xem bảng bên dưới) — ít nhất nên có `OLLAMA_BASE_URL` trỏ tới một
+   Ollama server có thể truy cập từ Internet, hoặc `OPENAI_API_KEY` nếu dùng
+   OpenAI; nếu bỏ trống cả hai, hệ thống vẫn chạy được nhờ cơ chế Extractive
+   Fallback cục bộ (xem Task 10).
+4. Spaces tự build `Dockerfile`, expose cổng `7860` và set biến `PORT=7860`
+   — `web_app.py` sẽ tự bind đúng cổng đó.
+
+### Cách 2 — Render (Web Service: Docker)
+
+1. Push repo lên GitHub, sau đó vào render.com → **New → Blueprint** → chọn
+   repo này. Render tự nhận diện file `render.yaml` ở gốc repo và build
+   `Dockerfile`.
+   *(Hoặc: New → Web Service → Runtime: Docker, không cần render.yaml.)*
+2. Khai báo các biến môi trường trong tab **Environment** (xem bảng bên dưới).
+   Render tự đặt `PORT`; `web_app.py` đọc giá trị này nên không cần khai báo.
+3. Sau khi build xong, Render cấp 1 URL public dạng
+   `https://druglaw-rag-chatbot.onrender.com`.
+
+### Biến môi trường (Secrets) nên cấu hình khi deploy
+
+| Biến | Bắt buộc? | Vai trò |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Không | Sinh câu trả lời chất lượng cao (Task 10) |
+| `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | Không | Dùng LLM cục bộ Qwen qua Ollama (cần server Ollama public) |
+| `JINA_API_KEY` | Không | Reranking (Task 7) — thiếu thì fallback MMR/cross-encoder cục bộ |
+| `PAGEINDEX_API_KEY` | Không | Vectorless RAG (Task 8) — thiếu thì fallback structural search cục bộ |
+| `WEAVIATE_URL`, `WEAVIATE_API_KEY` | Không | Vector DB cloud (Task 4) — thiếu thì dùng ChromaDB cục bộ đã đóng gói sẵn trong image |
+
+Nhờ kiến trúc "High-availability" (mọi API ngoài đều có fallback cục bộ —
+xem mục Kiến trúc Hệ thống), chatbot vẫn hoạt động đầy đủ kể cả khi **không**
+cấu hình bất kỳ biến nào ở trên — phù hợp để demo nhanh trên free-tier.
