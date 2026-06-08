@@ -7,9 +7,18 @@ Hướng dẫn:
     3. Inject context vào prompt
     4. Yêu cầu LLM trả lời có citation
     5. Nếu không đủ evidence → "I cannot verify this information"
+
+Generation backend:
+    - Nếu có OPENAI_API_KEY trong .env → gọi OpenAI thật theo đúng SYSTEM_PROMPT.
+    - Nếu không (giải pháp local/free mặc định) → `_generate_local_answer` tự
+      tổng hợp câu trả lời trực tiếp từ các chunk đã retrieve, MỖI đoạn đều
+      kèm "[Nguồn: ...]" — vẫn tuân thủ yêu cầu cốt lõi của task (mọi câu trả
+      lời đều có citation, và nói rõ khi không có evidence) mà không cần gọi
+      API trả phí.
 """
 
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,15 +31,16 @@ from .task9_retrieval_pipeline import retrieve
 # =============================================================================
 
 # top_k: Số chunks đưa vào context
-# Chọn 5 vì: đủ evidence mà không quá dài gây lost in the middle
+# Chọn 5 vì: đủ evidence (thường phủ 1-2 điều luật + 1-2 bài báo liên quan)
+# mà không quá dài khiến prompt loãng / gây "lost in the middle".
 TOP_K = 5
 
 # top_p (nucleus sampling): Xác suất tích luỹ cho token generation
-# Chọn 0.9 vì: đủ diverse nhưng không quá random
+# Chọn 0.9 vì: đủ tự nhiên về diễn đạt nhưng không quá ngẫu nhiên/lan man.
 TOP_P = 0.9
 
 # temperature: Độ ngẫu nhiên của output
-# Chọn 0.3 vì: RAG cần factual, ít sáng tạo
+# Chọn 0.3 vì: RAG cần câu trả lời bám sát evidence (factual), hạn chế "sáng tạo".
 TEMPERATURE = 0.3
 
 
@@ -75,20 +85,16 @@ def reorder_for_llm(chunks: list[dict]) -> list[dict]:
     Returns:
         List reordered để maximize LLM attention.
     """
-    # TODO: Implement reordering
-    #
-    # if len(chunks) <= 2:
-    #     return chunks
-    #
-    # # Split into first half (important → đầu) and second half (important → cuối)
-    # reordered = []
-    # for i in range(0, len(chunks), 2):
-    #     reordered.append(chunks[i])  # Odd positions go first
-    # for i in range(len(chunks) - 1 - (len(chunks) % 2 == 0), 0, -2):
-    #     reordered.append(chunks[i])  # Even positions go last (reversed)
-    #
-    # return reordered
-    raise NotImplementedError("Implement reorder_for_llm")
+    if len(chunks) <= 2:
+        return chunks
+
+    # Rank lẻ (1st, 3rd, 5th, ...) → đưa lên đầu, theo đúng thứ tự ưu tiên
+    head = chunks[0::2]
+    # Rank chẵn (2nd, 4th, ...) → đưa xuống cuối, đảo ngược (4th trước 2nd)
+    # để rank cao hơn nằm gần cuối hơn (tận dụng "recency" attention)
+    tail = chunks[1::2][::-1]
+
+    return head + tail
 
 
 # =============================================================================
@@ -106,23 +112,73 @@ def format_context(chunks: list[dict]) -> str:
     Returns:
         Formatted context string.
     """
-    # TODO: Implement context formatting
-    #
-    # context_parts = []
-    # for i, chunk in enumerate(chunks, 1):
-    #     source = chunk.get("metadata", {}).get("source", f"Source {i}")
-    #     doc_type = chunk.get("metadata", {}).get("type", "unknown")
-    #     context_parts.append(
-    #         f"[Document {i} | Source: {source} | Type: {doc_type}]\n"
-    #         f"{chunk['content']}\n"
-    #     )
-    # return "\n---\n".join(context_parts)
-    raise NotImplementedError("Implement format_context")
+    context_parts = []
+    for i, chunk in enumerate(chunks, 1):
+        source = chunk.get("metadata", {}).get("source", f"Source {i}")
+        doc_type = chunk.get("metadata", {}).get("type", "unknown")
+        context_parts.append(
+            f"[Document {i} | Source: {source} | Type: {doc_type}]\n"
+            f"{chunk['content']}\n"
+        )
+    return "\n---\n".join(context_parts)
 
 
 # =============================================================================
 # GENERATION
 # =============================================================================
+
+def _generate_local_answer(query: str, reordered: list[dict]) -> str:
+    """
+    Local/free fallback (không gọi LLM API): tổng hợp câu trả lời trực tiếp
+    từ các chunk đã retrieve, mỗi đoạn trích đều kèm "[Nguồn: ...]" — vẫn giữ
+    đúng tinh thần "mọi claim phải có citation / nói rõ khi thiếu evidence"
+    của SYSTEM_PROMPT mà không cần OPENAI_API_KEY.
+    """
+    if not reordered:
+        return "Tôi không thể xác minh thông tin này từ nguồn hiện có."
+
+    lines = [f'Tổng hợp các đoạn trích liên quan tới câu hỏi: "{query}"\n']
+    for chunk in reordered:
+        meta = chunk.get("metadata", {})
+        source = meta.get("source", "không rõ nguồn")
+        snippet = " ".join(chunk["content"].split())
+        if len(snippet) > 320:
+            snippet = snippet[:320].rsplit(" ", 1)[0] + "..."
+        lines.append(f"- {snippet} [Nguồn: {source}]")
+
+    lines.append(
+        "\n(Chế độ tổng hợp cục bộ — không gọi LLM API. Câu trả lời là trích dẫn "
+        "trực tiếp từ các nguồn trên; vui lòng đối chiếu văn bản gốc trước khi dùng chính thức.)"
+    )
+    return "\n".join(lines)
+
+
+def _generate_openai_answer(query: str, context: str) -> str | None:
+    """Gọi OpenAI thật nếu có OPENAI_API_KEY; trả None nếu lỗi/không có key."""
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    if not api_key:
+        return None
+
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=api_key)
+        user_message = f"Context:\n{context}\n\n---\n\nQuestion: {query}"
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message},
+            ],
+            temperature=TEMPERATURE,
+            top_p=TOP_P,
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"  [!] OpenAI API lỗi ({e}) — fallback sang local citation generator")
+        return None
+
 
 def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
     """
@@ -133,7 +189,7 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
         2. Reorder để tránh lost in the middle
         3. Format context với source labels
         4. Build prompt (system + context + query)
-        5. Call LLM
+        5. Call LLM (OpenAI nếu có key, ngược lại fallback local)
         6. Return answer + sources
 
     Args:
@@ -146,43 +202,19 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
             'retrieval_source': str  # 'hybrid' hoặc 'pageindex'
         }
     """
-    # TODO: Implement generation pipeline
-    #
-    # # Step 1: Retrieve
-    # chunks = retrieve(query, top_k=top_k)
-    #
-    # # Step 2: Reorder
-    # reordered = reorder_for_llm(chunks)
-    #
-    # # Step 3: Format context
-    # context = format_context(reordered)
-    #
-    # # Step 4: Build prompt
-    # user_message = f"""Context:\n{context}\n\n---\n\nQuestion: {query}"""
-    #
-    # # Step 5: Call LLM
-    # from openai import OpenAI
-    # client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    #
-    # response = client.chat.completions.create(
-    #     model="gpt-4o-mini",
-    #     messages=[
-    #         {"role": "system", "content": SYSTEM_PROMPT},
-    #         {"role": "user", "content": user_message}
-    #     ],
-    #     temperature=TEMPERATURE,
-    #     top_p=TOP_P,
-    # )
-    #
-    # answer = response.choices[0].message.content
-    #
-    # # Step 6: Return
-    # return {
-    #     "answer": answer,
-    #     "sources": chunks,
-    #     "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none"
-    # }
-    raise NotImplementedError("Implement generate_with_citation")
+    chunks = retrieve(query, top_k=top_k)
+    reordered = reorder_for_llm(chunks)
+    context = format_context(reordered)
+
+    answer = _generate_openai_answer(query, context)
+    if answer is None:
+        answer = _generate_local_answer(query, reordered)
+
+    return {
+        "answer": answer,
+        "sources": chunks,
+        "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none",
+    }
 
 
 if __name__ == "__main__":
@@ -193,7 +225,7 @@ if __name__ == "__main__":
     ]
 
     for q in test_queries:
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"Q: {q}")
         print("=" * 70)
         result = generate_with_citation(q)

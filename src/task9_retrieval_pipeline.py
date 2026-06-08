@@ -24,7 +24,7 @@ from .task8_pageindex_vectorless import pageindex_search
 
 SCORE_THRESHOLD = 0.3   # Nếu best score < threshold → fallback PageIndex
 DEFAULT_TOP_K = 5
-RERANK_METHOD = "cross_encoder"  # "cross_encoder" | "mmr" | "rrf"
+RERANK_METHOD = "mmr"   # "mmr" | "rrf" | "cross_encoder" — mmr: tự code, chạy local
 
 
 def retrieve(
@@ -61,32 +61,29 @@ def retrieve(
             'source': str  # 'hybrid' hoặc 'pageindex'
         }
     """
-    # TODO: Implement full retrieval pipeline
-    #
-    # Step 1: Song song chạy semantic + lexical
-    # dense_results = semantic_search(query, top_k=top_k * 2)
-    # sparse_results = lexical_search(query, top_k=top_k * 2)
-    #
-    # Step 2: Merge bằng RRF
-    # merged = rerank_rrf([dense_results, sparse_results], top_k=top_k * 2)
-    # for item in merged:
-    #     item["source"] = "hybrid"
-    #
-    # Step 3: Rerank
-    # if use_reranking and merged:
-    #     final_results = rerank(query, merged, top_k=top_k, method=RERANK_METHOD)
-    # else:
-    #     final_results = merged[:top_k]
-    #
-    # Step 4: Check threshold → fallback
-    # if not final_results or final_results[0]["score"] < score_threshold:
-    #     print(f"  ⚠ Hybrid score ({final_results[0]['score']:.3f} if final_results else 0}) "
-    #           f"< threshold ({score_threshold}). Fallback → PageIndex")
-    #     fallback = pageindex_search(query, top_k=top_k)
-    #     return fallback
-    #
-    # return final_results[:top_k]
-    raise NotImplementedError("Implement retrieve")
+    dense_results = semantic_search(query, top_k=top_k * 2)
+    sparse_results = lexical_search(query, top_k=top_k * 2)
+
+    merged = rerank_rrf([dense_results, sparse_results], top_k=top_k * 2)
+    for item in merged:
+        item["source"] = "hybrid"
+
+    if use_reranking and merged:
+        final_results = rerank(query, merged, top_k=top_k, method=RERANK_METHOD)
+        for item in final_results:
+            item.setdefault("source", "hybrid")
+    else:
+        final_results = merged[:top_k]
+
+    if not final_results or final_results[0]["score"] < score_threshold:
+        best = final_results[0]["score"] if final_results else 0.0
+        print(f"  [fallback] Hybrid best score ({best:.3f}) < threshold ({score_threshold}) "
+              f"-> PageIndex vectorless")
+        fallback = pageindex_search(query, top_k=top_k)
+        if fallback:
+            return fallback
+
+    return final_results[:top_k]
 
 
 if __name__ == "__main__":

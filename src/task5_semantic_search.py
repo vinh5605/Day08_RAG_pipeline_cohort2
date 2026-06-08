@@ -7,7 +7,16 @@ Yêu cầu:
     - Input: query string + top_k
     - Output: danh sách chunks có score, sorted descending
     - Phải tương thích với embedding model và vector store ở Task 4
+
+Cách triển khai:
+    Dùng đúng embedding model + ChromaDB collection đã tạo ở Task 4
+    (qua src._shared, để đảm bảo tương thích chiều vector & tên collection).
+    Chroma collection được cấu hình với "hnsw:space": "cosine" và lưu các
+    embedding đã normalize → khoảng cách trả về là cosine distance, nên
+    similarity = 1 - distance (càng gần 1 càng giống).
 """
+
+from src._shared import embed_texts, get_chroma_collection
 
 
 def semantic_search(query: str, top_k: int = 10) -> list[dict]:
@@ -26,37 +35,31 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
         }
         Sorted by score descending.
     """
-    # TODO: Implement semantic search
-    #
-    # Bước 1: Embed query bằng cùng model ở Task 4
-    # Bước 2: Query vector store (cosine similarity)
-    # Bước 3: Return top_k results
-    #
-    # Ví dụ với Weaviate:
-    # import weaviate
-    # from sentence_transformers import SentenceTransformer
-    #
-    # model = SentenceTransformer("BAAI/bge-m3")
-    # query_embedding = model.encode(query).tolist()
-    #
-    # client = weaviate.connect_to_local()
-    # collection = client.collections.get("DrugLawDocs")
-    #
-    # results = collection.query.near_vector(
-    #     near_vector=query_embedding,
-    #     limit=top_k,
-    #     return_metadata=MetadataQuery(distance=True)
-    # )
-    #
-    # return [
-    #     {
-    #         "content": obj.properties["content"],
-    #         "score": 1 - obj.metadata.distance,  # distance → similarity
-    #         "metadata": {"source": obj.properties["source"], ...}
-    #     }
-    #     for obj in results.objects
-    # ]
-    raise NotImplementedError("Implement semantic_search")
+    collection = get_chroma_collection()
+    if collection.count() == 0:
+        return []
+
+    query_embedding = embed_texts([query])[0]
+
+    response = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=min(top_k, collection.count()),
+        include=["documents", "metadatas", "distances"],
+    )
+
+    results = []
+    documents = response["documents"][0]
+    metadatas = response["metadatas"][0]
+    distances = response["distances"][0]
+    for content, metadata, distance in zip(documents, metadatas, distances):
+        results.append({
+            "content": content,
+            "score": 1.0 - distance,
+            "metadata": dict(metadata),
+        })
+
+    results.sort(key=lambda r: r["score"], reverse=True)
+    return results[:top_k]
 
 
 if __name__ == "__main__":

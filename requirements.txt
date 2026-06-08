@@ -1,28 +1,34 @@
 # Core
 python-dotenv>=1.0.0
 requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.2.0
+python-docx>=1.1.0
 
-# Task 2 - Crawling
-crawl4ai>=0.3.0
+# Task 2 - Crawling (dùng requests + BeautifulSoup thay Crawl4AI — xem
+# docstring trong src/task2_crawl_news.py để biết lý do)
+# crawl4ai>=0.3.0
 
 # Task 3 - Document conversion
-markitdown>=0.1.0
+markitdown[docx,pdf]>=0.1.0
 
 # Task 4 - Chunking & Indexing
 langchain-text-splitters>=0.2.0
 sentence-transformers>=2.2.0
-weaviate-client>=4.5.0
-# chromadb>=0.4.0        # Alternative
+chromadb>=0.5.0
+# weaviate-client>=4.5.0 # Alternative
 # faiss-cpu>=1.7.4       # Alternative
 
 # Task 6 - BM25
 rank-bm25>=0.2.2
 
-# Task 7 - Reranking (choose one)
-# transformers>=4.40.0   # For local reranker models
+# Task 7 - Reranking
+# MMR/RRF tự code trong src/task7_reranking.py (không cần dependency thêm).
+# rerank_cross_encoder dùng sentence-transformers.CrossEncoder (đã có ở trên).
 
-# Task 8 - PageIndex
-pageindex>=0.1.0
+# Task 8 - PageIndex (dùng khi có PAGEINDEX_API_KEY; mặc định fallback sang
+# structural search tự code trong src/task8_pageindex_vectorless.py)
+# pageindex>=0.1.0
 
 # Task 10 - Generation
 openai>=1.30.0

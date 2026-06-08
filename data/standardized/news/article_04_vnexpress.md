@@ -1,0 +1,38 @@
+# Sơn Ngọc Minh - hot boy VPop một thời vướng lao lý
+
+**Source:** https://vnexpress.net/son-ngoc-minh-hot-boy-vpop-mot-thoi-vuong-lao-ly-5076096.html
+**Crawled:** 2026-06-08T12:24:22.826408
+
+---
+
+# Sơn Ngọc Minh - hot boy VPop một thời vướng lao lý
+
+**Ca sĩ Sơn Ngọc Minh, 36 tuổi, từng hoạt động sôi nổi trong nhóm nhạc V.Music và solo trước khi bị bắt vì liên quan đến ma túy.**
+
+Ngày 20/5, Công an TP HCM cho biết Sơn Ngọc Minh bị Phòng Cảnh sát điều tra tội phạm về ma túy (PC04) bắt về hành vi Tổ chức sử dụng trái phép chất ma túy. Anh khai nghe theo bạn bè nên sử dụng ma túy đá từ trước Tết Bính Ngọ đến nay.
+
+Những năm gần đây anh không còn hoạt động tích cực ở làng giải trí, không ra nhạc mà chỉ thỉnh thoảng đi hát tại sự kiện nhỏ. Đầu năm, ca sĩ thường chia sẻ hình ảnh về công việc, đời thường với khán giả trên mạng xã hội. Tháng 12/2024, anh quay video chúc mừng, động viên Hồ Đức Lợi - thành viên nhóm V.Music - tham gia cuộc thi Én Vàng. Khoảng hai tháng trở lại đây, các tài khoản trang cá nhân của anh ngưng hoạt động, bài chia sẻ gần nhất trên Facebook là vào ngày 10/3.
+
+Hình ảnh Sơn Ngọc Minh lúc mới nổi tiếng ở showbiz (trái) và tại cơ quan điều tra. Ảnh: Facebook Sơn Ngọc Minh/Công an TP HCM
+
+Trước khi vướng vào sự việc, Sơn Ngọc Minh là gương mặt được khán giả trẻ biết đến với ngoại hình sáng, từng được gọi là "hot boy Vpop". Anh sinh năm 1990, quê Cần Thơ. Sau khi tốt nghiệp cấp ba, anh đỗ vào Đại học Kiến trúc TP HCM nhưng vì một số lý do nên bỏ giấc mơ giảng đường để mưu sinh. Năm 2009, nhóm nhạc V.Music casting thành viên, anh tham gia và được lựa chọn cùng Lê Thiên Bảo, Hồ Anh, Trần Ngọc Khanh. Khi nhóm hoạt động được một thời gian, Thiên Bảo rời đi và Hồ Đức Lợi thay thế.
+
+Sơn Ngọc Minh xuất hiện đầu tiên trong MV "Xinh tươi Việt Nam" của nhóm V.Music năm 2011. Video: YouTube T Production
+
+V.Music từng được ca sĩ Hồ Ngọc Hà, Nguyễn Hồng Thuận dẫn dắt, giúp đỡ thuở đầu. Họ theo đuổi phong cách pop, ballad và dòng nhạc ca ngợi quê hương đất nước. Nhóm từng ra mắt chín album và ba single, trong đó có nhiều nhạc phẩm nổi bật như Ngày hạnh phúc, Xinh tươi Việt Nam, Việt Nam gấm hoa. Năm 2013, họ tổ chức minishow cùng hơn một nghìn fan trước khi thông báo tan rã vào năm 2014.
+
+Thời gian sinh hoạt nhóm, anh được các thành viên tin tưởng khả năng ăn nói, thường giao vai trò trả lời câu hỏi của truyền thông lẫn khán giả tại các cuộc giao lưu. Anh còn từng được một số nhà mốt chọn thực hiện bộ ảnh thời trang với phong cách dành cho giới trẻ.
+
+Khi chuyển sang con đường solo, Sơn Ngọc Minh phát hành loạt sản phẩm như Đi tìm tình yêu, Biết chết liền , Hòa nhịp đam mê nhưng không gây nhiều tiếng vang. Ca sĩ trải qua giai đoạn khó khăn tìm định hướng phát triển. Sơn Ngọc Minh từng nói bài toán lúc đó là làm sao thoát khỏi cái bóng lúc còn hoạt động nhóm để tạo dấu ấn riêng. Tại chương trình Người kết nối năm 2017, ca sĩ kể gặp áp lực về cả tài chính lẫn sức khỏe. Tuy nhiên, sau đó anh vượt qua và tìm lại cảm hứng với nghề.
+
+Ra MV Anh muốn yêu em lần nữa năm 2014, anh cho biết dự án đánh dấu bước đi mới về cả phong cách âm nhạc lẫn hình ảnh, muốn rũ bỏ vẻ thư sinh quen thuộc. Đến dự họp báo của đàn em vào thời điểm đó, nhạc sĩ Nguyễn Hồng Thuận nhận xét Sơn Ngọc Minh có sự trưởng thành và tiến bộ. Cuối năm 2015, Sơn Ngọc Minh ra album Only You - dự án lớn nhất của anh sau 5 năm bước vào showbiz.
+
+Anh còn kết hợp Hari Won, Ái Phương qua loạt sản phẩm mang màu sắc tươi vui, khai thác lợi thế vũ đạo. Ngoài âm nhạc, anh theo đuổi công việc diễn xuất, từng góp mặt trong một số phim như Vẫn đợi em về , Biết chết liền (đạo diễn Lê Bảo Trung), Mười bảy tuổi rưỡi (Đỗ Mai Nhất Tuấn).
+
+Ca sĩ tại hậu trường một sự kiện. Video: Facebook Sơn Ngọc Minh
+
+Tại cơ quan điều tra, Sơn Ngọc Minh bày tỏ sự hối lỗi, nhận sai trước hành vi vi phạm pháp luật. Ca sĩ ý thức sự việc sẽ gây ảnh hưởng đến gia đình và những người xung quanh.
+
+Gần đây, nhiều ca sĩ gồm Chi Dân, Miu Lê , Long Nhật vướng lao lý do liên quan đến ma túy khiến khán giả thất vọng. Họ đều có sự nghiệp ổn định với nhiều bản hit, có lượng fan nhất định. Theo các chuyên gia và luật sư, các sự việc trên là lời cảnh tỉnh và bài học dành cho giới nghệ sĩ nói chung.
+
+Tân Cao
