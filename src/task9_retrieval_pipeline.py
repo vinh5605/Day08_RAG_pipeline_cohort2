@@ -75,9 +75,16 @@ def retrieve(
     else:
         final_results = merged[:top_k]
 
-    if not final_results or final_results[0]["score"] < score_threshold:
-        best = final_results[0]["score"] if final_results else 0.0
-        print(f"  [fallback] Hybrid best score ({best:.3f}) < threshold ({score_threshold}) "
+    # Lưu ý: KHÔNG dùng final_results[0]["score"] để so threshold — score ở đây
+    # tuỳ thuộc bước cuối cùng (RRF fusion ~0.01-0.05, MMR/cross-encoder ~0-1,
+    # ...) nên không có scale cố định để so với score_threshold (phát hiện khi
+    # đánh giá A/B use_reranking=True/False trong group_project/evaluation).
+    # Dùng best similarity score của dense/semantic search (luôn ở scale cosine
+    # 0-1) làm tín hiệu "độ tin cậy" nhất quán cho quyết định fallback.
+    confidence = dense_results[0]["score"] if dense_results else 0.0
+
+    if not final_results or confidence < score_threshold:
+        print(f"  [fallback] Best semantic confidence ({confidence:.3f}) < threshold ({score_threshold}) "
               f"-> PageIndex vectorless")
         fallback = pageindex_search(query, top_k=top_k)
         if fallback:

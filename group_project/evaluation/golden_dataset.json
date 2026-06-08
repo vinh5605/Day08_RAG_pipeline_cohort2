@@ -1,17 +1,17 @@
 [
-  {
-    "question": "Hình phạt cho tội tàng trữ trái phép chất ma tuý theo Điều 249 Bộ luật Hình sự?",
-    "expected_answer": "Phạt tù từ 1 đến 5 năm đối với trường hợp tàng trữ từ 1g đến dưới 5g heroin hoặc cocaine, hoặc chất ma tuý khác với khối lượng tương đương.",
-    "expected_context": "Bộ luật Hình sự 2015, Điều 249"
-  },
-  {
-    "question": "Luật Phòng chống ma tuý 2021 quy định những hình thức cai nghiện nào?",
-    "expected_answer": "Cai nghiện tự nguyện tại gia đình, cai nghiện tự nguyện tại cộng đồng, cai nghiện tự nguyện tại cơ sở cai nghiện, và cai nghiện bắt buộc tại cơ sở cai nghiện.",
-    "expected_context": "Luật Phòng chống ma tuý 2021, Chương V"
-  },
-  {
-    "question": "Danh mục các chất ma tuý thuộc nhóm I theo quy định pháp luật Việt Nam gồm những chất nào?",
-    "expected_answer": "Nhóm I gồm các chất ma tuý tuyệt đối cấm sử dụng trong y học và đời sống, bao gồm heroin, cocaine, methamphetamine, MDMA (ecstasy), cannabis (cần sa), và các chất tương tự.",
-    "expected_context": "Nghị định 57/2022/NĐ-CP, Phụ lục I"
-  }
+  {"question":"Bài Tuổi Trẻ ngày 20-5-2026 đưa tin những ca sĩ nào bị bắt vì liên quan ma túy?","expected_answer":"Tuổi Trẻ đưa tin ca sĩ Long Nhật và ca sĩ Sơn Ngọc Minh bị bắt vì liên quan ma túy.","expected_context":"Tuổi Trẻ Online — Bắt ca sĩ Long Nhật và ca sĩ Sơn Ngọc Minh vì liên quan ma túy, 2026"},
+  {"question":"Ca sĩ Sơn Ngọc Minh được bài báo mô tả có tình trạng hoạt động nghệ thuật ra sao trước khi bị bắt?","expected_answer":"Bài báo cho biết người nhà mất liên lạc và Sơn Ngọc Minh bỏ bê ca hát nhiều năm trước khi bị bắt vì ma túy.","expected_context":"Tuổi Trẻ Online — Ca sĩ Sơn Ngọc Minh trước khi bị bắt vì ma túy, 2026"},
+  {"question":"Bài Tuổi Trẻ về ca sĩ Miu Lê năm 2026 nêu sự việc gì?","expected_answer":"Bài báo nêu ca sĩ Miu Lê bị bắt quả tang sử dụng ma túy ở Hải Phòng.","expected_context":"Tuổi Trẻ Online — Ca sĩ Miu Lê bị bắt quả tang sử dụng ma túy ở Hải Phòng, 2026"},
+  {"question":"Chuyên án VN10 truy tố những người nổi tiếng nào theo bài Tuổi Trẻ tháng 4-2026?","expected_answer":"Bài báo nêu trong chuyên án VN10 có ca sĩ Chi Dân và người mẫu An Tây trong số các bị can bị truy tố.","expected_context":"Tuổi Trẻ Online — Chuyên án VN10: Truy tố 227 bị can, trong đó có ca sĩ Chi Dân, An Tây, 2026"},
+  {"question":"Bài Tuổi Trẻ về Trúc Phương tháng 4-2026 liên quan sự kiện gì?","expected_answer":"Bài báo liên quan vụ 4 tiếp viên hàng không xách tay ma túy và tiệc sinh nhật 'bay lắc' của 'cô tiên' Trúc Phương.","expected_context":"Tuổi Trẻ Online — Vụ 4 tiếp viên hàng không xách tay ma túy: Tiệc sinh nhật 'bay lắc' của 'cô tiên' Trúc Phương, 2026"},
+  {"question":"Bài Tuổi Trẻ tháng 11-2024 đưa tin những ai bị bắt do liên quan ma túy?","expected_answer":"Bài báo đưa tin người mẫu An Tây, ca sĩ Chi Dân và 'cô tiên' Trúc Phương bị bắt do liên quan ma túy.","expected_context":"Tuổi Trẻ Online — Bắt người mẫu An Tây, ca sĩ Chi Dân, 'cô tiên' Trúc Phương do liên quan ma túy, 2024"},
+  {"question":"Hình phạt cơ bản cho tội tàng trữ trái phép chất ma tuý theo Điều 249 là gì?","expected_answer":"Người tàng trữ trái phép chất ma túy thuộc trường hợp luật định có thể bị phạt tù từ 01 năm đến 05 năm, khung tăng nặng phụ thuộc khối lượng và tình tiết.","expected_context":"Bộ luật Hình sự 2015 sửa đổi 2017 — Điều 249"},
+  {"question":"Luật Phòng chống ma túy 2021 quy định những hình thức cai nghiện nào?","expected_answer":"Có cai nghiện tự nguyện tại gia đình, tại cộng đồng, tại cơ sở cai nghiện ma túy và cai nghiện bắt buộc tại cơ sở cai nghiện ma túy.","expected_context":"Luật Phòng, chống ma túy 2021 — Chương V"},
+  {"question":"Chất ma túy được hiểu như thế nào theo Luật Phòng chống ma túy?","expected_answer":"Chất ma túy là chất gây nghiện, chất hướng thần được quy định trong danh mục do Chính phủ ban hành.","expected_context":"Luật Phòng, chống ma túy 2021 — Điều 3"},
+  {"question":"Nghị định 105/2021/NĐ-CP hướng dẫn nội dung gì?","expected_answer":"Nghị định hướng dẫn quản lý người sử dụng trái phép chất ma túy, xét nghiệm, lập hồ sơ quản lý và phối hợp giữa các cơ quan liên quan.","expected_context":"Nghị định 105/2021/NĐ-CP"},
+  {"question":"Ai có trách nhiệm lập danh sách quản lý người sử dụng trái phép chất ma túy tại địa bàn?","expected_answer":"Ủy ban nhân dân cấp xã có trách nhiệm tiếp nhận thông tin, xác minh, thông báo cho gia đình và lập danh sách quản lý tại địa bàn.","expected_context":"Nghị định 105/2021/NĐ-CP"},
+  {"question":"Điều 251 Bộ luật Hình sự quy định tội gì?","expected_answer":"Điều 251 quy định tội mua bán trái phép chất ma túy với các khung hình phạt nghiêm khắc tùy loại chất, khối lượng và tình tiết.","expected_context":"Bộ luật Hình sự 2015 sửa đổi 2017 — Điều 251"},
+  {"question":"Điều 250 Bộ luật Hình sự quy định tội gì?","expected_answer":"Điều 250 quy định tội vận chuyển trái phép chất ma túy.","expected_context":"Bộ luật Hình sự 2015 sửa đổi 2017 — Điều 250"},
+  {"question":"Điều 248 Bộ luật Hình sự quy định tội gì?","expected_answer":"Điều 248 quy định tội sản xuất trái phép chất ma túy.","expected_context":"Bộ luật Hình sự 2015 sửa đổi 2017 — Điều 248"},
+  {"question":"Pipeline RAG sử dụng nguồn fallback nào khi hybrid search điểm thấp?","expected_answer":"Pipeline fallback sang PageIndex vectorless search, trong bản offline là tìm kiếm cấu trúc/keyword trên markdown và đánh dấu source pageindex.","expected_context":"src/task9_retrieval_pipeline.py; src/task8_pageindex_vectorless.py"}
 ]
